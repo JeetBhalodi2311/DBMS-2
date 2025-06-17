@@ -1,0 +1,50 @@
+1) use Darshan
+
+2) use DIET
+
+3) show dbs
+
+4)
+
+5) db.dropDatabase()
+
+6) db.createCollection("Student")
+
+7) db.createCollection("Department")
+
+8) show collections
+
+9) db.Department.insertOne({Dname:'CE', HOD:'Patel'})
+
+10) db.Department.insertMany([{Dname:'IT'},{Dname:'ICT'}])
+
+11) db.Department.drop()
+
+12) db.Student.insertOne({Name:'Jeet' , City:'Rajkot' ,  Branch:'CSe' ,  Semester:4 , Age:20})
+
+13) db.Student.insertMany([{Name:'Bhavy' , City:'Gondal' ,  Branch:'CS' ,  Semester:3 , Age:19},{Name:'Pratik' , City:'Rajkot' ,  Branch:'CSE' ,  Semester:2 , Age:18},{Name:'Heet' , 	City:'Moviya' ,  Branch:'Diplo' ,  Semester:6 , Age:21}])
+
+14) db.getCollectionNames().includes("Student")
+
+15) db.createCollection("Deposit")
+
+16) db.Student.drop()
+
+17) db.createCollection("Deposit")
+
+18) db.Deposit.insertMany([
+
+  { ACTNO: 101, CNAME: 'ANIL', BNAME: 'VRCE', AMOUNT: 1000.00, CITY: 'RAJKOT' },
+  { ACTNO: 102, CNAME: 'SUNIL', BNAME: 'AJNI', AMOUNT: 5000.00, CITY: 'SURAT' },
+  { ACTNO: 103, CNAME: 'MEHUL', BNAME: 'KAROLBAGH', AMOUNT: 3500.00, CITY: 'BARODA' },
+  { ACTNO: 104, CNAME: 'MADHURI', BNAME: 'CHANDI', AMOUNT: 1200.00, CITY: 'AHMEDABAD' },
+  { ACTNO: 105, CNAME: 'PRMOD', BNAME: 'M.G. ROAD', AMOUNT: 3000.00, CITY: 'SURAT' },
+  { ACTNO: 106, CNAME: 'SANDIP', BNAME: 'ANDHERI', AMOUNT: 2000.00, CITY: 'RAJKOT' },
+  { ACTNO: 107, CNAME: 'SHIVANI', BNAME: 'VIRAR', AMOUNT: 1000.00, CITY: 'SURAT' },
+  { ACTNO: 108, CNAME: 'KRANTI', BNAME: 'NEHRU PLACE', AMOUNT: 5000.00, CITY: 'RAJKOT' }
+]
+)
+
+19) db.Deposit.find().forEach(printjson)
+
+20) db.Deposit.drop()

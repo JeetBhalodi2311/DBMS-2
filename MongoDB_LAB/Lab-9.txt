@@ -1,0 +1,82 @@
+---------PART-A-------------
+
+1) db.BANK_INFO.find().forEach(printjson)
+
+2) db.BANK_INFO.findOne()
+
+3) db.BANK_INFO.insertOne({ACTNO: 109,CNAME: 'KIRTI',BNAME: 'VIRAR',AMOUNT: 3000,ADATE: '1997-05-03'})
+
+4) db.BANK_INFO.insertMany([{ACTNO: 110,CNAME: 'MITALI',BNAME: 'ANDHERI',AMOUNT: 4500,ADATE: '1995-09-04'},
+	{ACTNO: 111,CNAME: 'RAJIV',BNAME: 'NEHRU PLACE',AMOUNT: 7000,ADATE: '1998-10-02'}])
+
+5) db.BANK_INFO.find({BNAME:'VIRAR'})
+
+6) db.BANK_INFO.find({AMOUNT:{$gte:3000,$lte:5000}})
+
+7) db.BANK_INFO.find({$and:[{AMOUNT:{$gt:2000}},{BNAME:'VIRAR'}]})
+
+8) db.BANK_INFO.find({}, {BNAME:1,CNAME:1,AMOUNT:1,_id:0})
+
+9) db.BANK_INFO.find().sort({CNAME:1})
+
+10) db.BANK_INFO.find().sort({BNAME:-1})
+
+11) db.BANK_INFO.find().sort({ACTNO:1},{AMOUNT:-1})
+
+12) db.BANK_INFO.find().limit(2)
+
+13) db.BANK_INFO.find().skip(2).limit(1)
+
+14) db.BANK_INFO.find().skip(5).limit(2)
+
+15) db.BANK_INFO.find().count()
+
+-----------------------------------------------------------------------------------------------------------------
+
+---------PART-B-------------------
+
+1) db.Student.insertMany([{ "_id": 1, "name": "John", "age": 30, "city": "New York", "isActive": true } ,
+{ "_id": 2, "name": "Jane", "age": 25, "city": "Los Angeles", "isActive": false }, 
+{ "_id": 3, "name": "Tom", "age": 35, "city": "Chicago", "isActive": true }, 
+{ "_id": 4, "name": "Lucy", "age": 28, "city": "San Francisco", "isActive": true }, 
+{ "_id": 5, "name": "David", "age": 40, "city": "Miami", "isActive": false }, 
+{ "_id": 6, "name": "Eva", "age": 23, "city": "Boston", "isActive": true }, 
+{ "_id": 7, "name": "Nick", "age": 38, "city": "Seattle", "isActive": false }, 
+{ "_id": 8, "name": "Sophia", "age": 27, "city": "New York", "isActive": true }, 
+{ "_id": 9, "name": "Liam", "age": 32, "city": "Los Angeles", "isActive": false }, 
+{ "_id": 10, "name": "Olivia", "age": 29, "city": "San Diego", "isActive": true } ])
+
+2) db.Student.find().forEach(printjson)
+
+3) db.Student.find({age:30})
+
+4) db.Student.find({age:{$gt:25}})
+
+5) db.Student.find({$and:[{name:'John'},{age:30}]})
+
+6) db.Student.find({age:{$ne:25}})
+
+7) db.Student.find({$or:[{age:30},{age:25},{age:35}]})
+   db.Student.find({age:{ $in:[25, 30, 35]}})
+
+8) db.Student.find({$or:[{name:'John'},{age:30}]})
+
+9) db.Student.find({$and:[{name:'John'},{city:'New York'}]})
+
+10) db.Student.find({$and:[{name:'John'},{city:'New York'}]},{name:1,age:1,_id:0})
+
+-----------------------------------------------------------------------------------------------------------------
+
+---------PART-C-----------------
+
+1) db.Student.find( { age: { $gte: 25, $lte: 35 } }, { name: 1, _id: 0 }).sort({ age: 1})
+
+2) db.Student.find().sort({ name: 1},{age:-1})
+
+3) db.Student.find().limit(5)
+
+4) db.Student.find().skip(3).limit(2)
+
+5) db.Student.find( {},{ name: 1, age: 1, _id: 0 }).sort({ age: -1 }).limit(1)
+
+6) db.Student.find().skip(2)

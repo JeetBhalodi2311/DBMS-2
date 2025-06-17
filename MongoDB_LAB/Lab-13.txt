@@ -1,0 +1,199 @@
+// 1. Create an index on the company field in the stocks collection
+db.stocks.createIndex({ company: 1 });
+
+// 2. Create a compound index on the sector and sales fields in the stocks collection
+db.stocks.createIndex({ sector: 1, sales: 1 });
+
+// 3. List all the indexes created on the stocks collection
+db.stocks.getIndexes();
+
+// 4. Drop an existing index on the company field from the stocks collection
+db.stocks.dropIndex("company_1");
+
+// 5. Use a cursor to retrieve and iterate over documents in the stocks collection, displaying each document
+var cursor = db.stocks.find();
+while (cursor.hasNext()) {
+   printjson(cursor.next());
+}
+
+// 6. Limit the number of documents returned by a cursor to the first 3 documents in the stocks collection
+db.stocks.find().limit(3);
+
+// 7. Sort the documents returned by a cursor in descending order based on the sales field
+db.stocks.find().sort({ sales: -1 });
+
+// 8. Skip the first 2 documents in the result set and return the next documents using the cursor
+db.stocks.find().skip(2);
+
+// 9. Convert the cursor to an array and return all documents from the stocks collection
+var cursorArray = db.stocks.find().toArray();
+printjson(cursorArray);
+
+// 10. Create a collection named "Companies" with schema validation to ensure that each document contains a company field (string) and a sector field (string)
+db.createCollection("Companies", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         required: ["company", "sector"],
+         properties: {
+            company: {
+               bsonType: "string",
+               description: "must be a string and is required"
+            },
+            sector: {
+               bsonType: "string",
+               description: "must be a string and is required"
+            }
+         }
+      }
+   }
+});
+
+
+--------PART-B-----
+
+// 1. Create a collection named "Scripts" with validation for fields like eps, pe, and roe
+db.createCollection("Scripts", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         required: ["eps", "pe", "roe"],
+         properties: {
+            eps: {
+               bsonType: "double",
+               description: "must be a number and is required"
+            },
+            pe: {
+               bsonType: "double",
+               description: "must be a number and is required"
+            },
+            roe: {
+               bsonType: "double",
+               description: "must be a number and is required"
+            }
+         }
+      }
+   }
+});
+
+// 2. Create a collection named "Products" with embedded document for manufacturer details and multivalued field for categories
+db.createCollection("Products", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         properties: {
+            manufacturer: {
+               bsonType: "object",
+               required: ["name", "country", "establishedYear"],
+               properties: {
+                  name: {
+                     bsonType: "string",
+                     description: "must be a string and is required"
+                  },
+                  country: {
+                     bsonType: "string",
+                     description: "must be a string and is required"
+                  },
+                  establishedYear: {
+                     bsonType: "int",
+                     description: "must be an integer and is required"
+                  }
+               }
+            },
+            categories: {
+               bsonType: "array",
+               items: {
+                  bsonType: "string"
+               },
+               description: "must be an array of strings"
+            }
+         }
+      }
+   }
+});
+
+
+-------PART-C-----
+
+// 1. Create a collection named "financial_Reports" that requires revenue (a positive number)
+db.createCollection("financial_Reports", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         required: ["revenue"],
+         properties: {
+            revenue: {
+               bsonType: "double",
+               minimum: 0,
+               description: "must be a positive number and is required"
+            },
+            expenses: {
+               bsonType: "double",
+               description: "must be a number if provided"
+            },
+            netIncome: {
+               bsonType: "double",
+               description: "must be a number if provided"
+            }
+         }
+      }
+   } 
+});
+
+
+// 2. Create a collection named "Student" with embedded document for name and address, and multivalued field for mobilenumber and emailaddress
+db.createCollection("Student", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         properties: {
+            name: {
+               bsonType: "object",
+               required: ["firstName", "lastName"],
+               properties: {
+                  firstName: {
+                     bsonType: "string",
+                     description: "must be a string and is required"
+                  },
+                  lastName: {
+                     bsonType: "string",
+                     description: "must be a string and is required"
+                  }
+               }
+            },
+            address: {
+               bsonType: "object",
+               required: ["street", "city", "zipCode"],
+               properties: {
+                  street: {
+                     bsonType: "string",
+                     description: "must be a string and is required"
+                  },
+                  city: {
+                     bsonType: "string",
+                     description: "must be a string and is required"
+                  },
+                  zipCode: {
+                     bsonType: "string",
+                     description: "must be a string and is required"
+                  }
+               }
+            },
+            mobilenumber: {
+               bsonType: "array",
+               items: {
+                  bsonType: "string"
+               },
+               description: "must be an array of strings"
+            },
+            emailaddress: {
+               bsonType: "array",
+               items: {
+                  bsonType: "string"
+               },
+               description: "must be an array of strings"
+            }
+         }
+      }
+   }
+});

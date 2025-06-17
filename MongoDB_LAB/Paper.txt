@@ -1,0 +1,582 @@
+// 1. Find battles in locations containing "City"
+db.Battle.find({ Battle_location: /City/i });
+
+// 2. Find villains whose names end with "man"
+db.Villain.find({ Villain_name: /man$/i });
+
+// 3. Find villains whose motive contains "world" or "power"
+db.Villain.find({ Villain_motive: /world|power/i });
+
+// 4. Find villains whose motive is exactly 10 characters long
+db.Villain.find({ Villain_motive: { $regex: /^.{10}$/ } });
+
+// 5. Find heroes whose names contain at least two vowels
+db.Hero.find({ Hero_name: /.[aeiou].[aeiou].*/i });
+
+------------------------------------------------------------
+
+// 1. Find artists whose names start with 'A'.
+db.Artists.find({ Name: /^A/ });
+
+// 2. Find exhibitions containing ‘modern’ in the name.
+db.Exhibitions.find({ ExhibitionName: /modern/i });
+
+// 3. Find artworks where the title contains either ‘portrait’ or ‘landscape’.
+db.Artworks.find({ Title: /portrait|landscape/i });
+
+// 4. Find artists with exactly five-letter names.
+db.Artists.find({ Name: /^[A-Za-z]{5}$/ });
+
+// 5. Find artists whose names contain exactly two consecutive vowels.
+db.Artists.find({ Name: /[aeiou]{2}/i });
+
+------------------------------------------------------------
+
+// 1. Find all teams whose name contains "Knight".
+db.Team.find({ Team_name: /Knight/i });
+
+// 2. Find all stadiums located in cities starting with "M" or "D".
+db.Stadium.find({ Stadium_city: /^[MD]/ });
+
+// 3. Find all players whose first name has exactly 5 characters.
+db.Player.find({ Player_first_name: /^[A-Za-z]{5}$/ });
+
+// 4. Find all cities whose name ends with ‘bai’ or ‘pur’.
+db.Stadium.find({ Stadium_city: /(bai|pur)$/ });
+
+// 5. Find all coaches whose name contains exactly one consonant.
+db.Team.find({ Team_coach: /^[^aeiouAEIOU][aeiouAEIOU][^aeiouAEIOU]$/ });
+
+------------------------------------------------------------
+
+// 1. Find products whose names start with 'A'.
+db.Products.find({ ProductName: /^A/ });
+
+// 2. Find the products containing 'skin' in the name.
+db.Products.find({ ProductName: /skin/i });
+
+// 3. Find makeup products where the type contains either 'lip' or 'eye'.
+db.Makeup.find({ Type: /lip|eye/i });
+
+// 4. Find products with exactly five-letter names.
+db.Products.find({ ProductName: /^[A-Za-z]{5}$/ });
+
+// 5. Find the products whose name contains exactly two consecutive vowels and category is 'Skincare'.
+db.Products.find({ 
+    $and: [
+        { ProductName: /[aeiou]{2}/i }, 
+        { Category: 'Skincare' }
+    ] 
+});
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+// 1. Count the total number of artworks by each artist.
+db.Artworks.aggregate([
+    { $group: { _id: "$ArtistID", totalArtworks: { $sum: 1 } } }
+]);
+
+// 2. Find the average number of artworks displayed per exhibition.
+db.Artworks.aggregate([
+    { $group: { _id: "$ExhibitionID", avgArtworks: { $avg: 1 } } }
+]);
+
+// 3. Find the exhibition with the most artworks.
+db.Artworks.aggregate([
+    { $group: { _id: "$ExhibitionID", total: { $sum: 1 } } },
+    { $sort: { total: -1 } },
+    { $limit: 1 }
+]);
+
+// 4. Find the top 3 most expensive artworks displayed.
+db.Artworks.find().sort({ Price: -1 }).limit(3);
+
+------------------------------------------------------------
+
+// 1. Count total heroes
+db.Hero.aggregate([{ $count: "TotalHeroes" }]);
+
+// 2. Get average hero strength level
+db.Hero.aggregate([{ $group: { _id: null, AvgStrength: { $avg: "$Hero_strength_level" } } }]);
+
+// 3. List top 3 heroes with most battles won
+db.Hero.aggregate([
+    { $sort: { Hero_battles_won: -1 } },
+    { $limit: 3 }
+]);
+
+// 4. Get count of battles per location
+db.Battle.aggregate([
+    { $group: { _id: "$Battle_location", Count: { $sum: 1 } } }
+]);
+
+// 5. Get total damage cost by location (greater than 100 million)
+db.Battle.aggregate([
+    { $group: { _id: "$Battle_location", TotalDamage: { $sum: "$Battle_damage_cost" } } },
+    { $match: { TotalDamage: { $gt: 100 } } }
+]);
+
+------------------------------------------------------------
+
+// 1. Count the total number of players in each team.
+db.Player.aggregate([
+    { $group: { _id: "$Team_id", totalPlayers: { $sum: 1 } } }
+]);
+
+// 2. Find the highest stadium capacity.
+db.Stadium.aggregate([
+    { $group: { _id: null, maxCapacity: { $max: "$Stadium_capacity" } } }
+]);
+
+// 3. Count the number of players with matches greater than 100.
+db.Player.countDocuments({ Player_matches_played: { $gt: 100 } });
+
+// 4. Get the wins of teams by home stadium and sort by descending total wins.
+db.Team.aggregate([
+    { $group: { _id: "$Home_stadium_id", totalWins: { $sum: "$Team_wins" } } },
+    { $sort: { totalWins: -1 } }
+]);
+
+// 5. Calculate the total capacity of stadiums in every city with capacity greater than 150,000.
+db.Stadium.aggregate([
+    { $match: { Stadium_capacity: { $gt: 150000 } } },
+    { $group: { _id: "$Stadium_city", totalCapacity: { $sum: "$Stadium_capacity" } } }
+]);
+
+------------------------------------------------------------
+
+// 1. Count the number of products in each category.
+db.Products.aggregate([
+    { $group: { _id: "$Category", totalProducts: { $sum: 1 } } }
+]);
+
+// 2. Find the average price of all products.
+db.Products.aggregate([
+    { $group: { _id: null, avgPrice: { $avg: "$Price" } } }
+]);
+
+// 3. Find the minimum and maximum product prices.
+db.Products.aggregate([
+    { $group: { _id: null, minPrice: { $min: "$Price" }, maxPrice: { $max: "$Price" } } }
+]);
+
+// 4. Find the top 3 most expensive products in the 'Skincare' category.
+db.Products.aggregate([
+    { $match: { Category: "Skincare" } },
+    { $sort: { Price: -1 } },
+    { $limit: 3 }
+]);
+
+// 5. Find the most common skin type among Skincare products.
+db.Skincare.aggregate([
+    { $group: { _id: "$SkinType", count: { $sum: 1 } } },
+    { $sort: { count: -1 } },
+    { $limit: 1 }
+]);
+
+
+------------------------------------------------------------
+
+-- Stored Procedure: Retrieve all heroes with a strength level greater than 8
+CREATE PROCEDURE GetHeroesByStrength
+AS
+BEGIN
+    SELECT * 
+    FROM Heroes
+    WHERE strength_level > 8;
+END;
+
+----------------------------------------------------------
+
+-- Stored Procedure: Update the number of battles won by a hero
+CREATE PROCEDURE UpdateBattlesWon
+    @HeroID INT,
+    @BattlesWon INT
+AS
+BEGIN
+    UPDATE Heroes
+    SET battles_won = @BattlesWon
+    WHERE hero_id = @HeroID;
+END;
+
+----------------------------------------------------------
+
+-- User-Defined Function: Check if a number is an Armstrong number
+CREATE FUNCTION IsArmstrong (@Number INT)
+RETURNS BIT
+AS
+BEGIN
+    DECLARE @Sum INT = 0, @Temp INT, @Digit INT;
+    SET @Temp = @Number;
+
+    WHILE @Temp > 0
+    BEGIN
+        SET @Digit = @Temp % 10;
+        SET @Sum = @Sum + POWER(@Digit, 3);
+        SET @Temp = @Temp / 10;
+    END;
+
+    RETURN CASE WHEN @Sum = @Number THEN 1 ELSE 0 END;
+END;
+
+----------------------------------------------------------
+
+-- Trigger: Update hero's and villain's battles won count when a new battle is inserted
+CREATE TRIGGER UpdateBattlesCount
+ON Battles
+AFTER INSERT
+AS
+BEGIN
+    UPDATE Heroes
+    SET battles_won = battles_won + 1
+    FROM Heroes
+    INNER JOIN Inserted
+    ON Heroes.hero_id = Inserted.hero_id;
+
+    UPDATE Villains
+    SET battles_won = battles_won + 1
+    FROM Villains
+    INNER JOIN Inserted
+    ON Villains.villain_id = Inserted.villain_id;
+END;
+
+----------------------------------------------------------
+
+-- Cursor: Display all heroes with a strength level greater than 7
+DECLARE @HeroID INT, @HeroName NVARCHAR(100);
+
+DECLARE HeroCursor CURSOR FOR
+SELECT hero_id, hero_name
+FROM Heroes
+WHERE strength_level > 7;
+
+OPEN HeroCursor;
+
+FETCH NEXT FROM HeroCursor INTO @HeroID, @HeroName;
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    PRINT 'Hero ID: ' + CAST(@HeroID AS NVARCHAR) + ', Name: ' + @HeroName;
+    FETCH NEXT FROM HeroCursor INTO @HeroID, @HeroName;
+END;
+
+CLOSE HeroCursor;
+DEALLOCATE HeroCursor;
+
+----------------------------------------------------------
+
+-- Procedure: Update hero_strength_level with error handling
+CREATE PROCEDURE UpdateHeroStrength
+    @HeroID INT,
+    @StrengthLevel INT
+AS
+BEGIN
+    BEGIN TRY
+        IF @StrengthLevel < 0 OR @StrengthLevel > 10
+            THROW 50000, 'Strength level must be between 0 and 10.', 1;
+
+        UPDATE Heroes
+        SET strength_level = @StrengthLevel
+        WHERE hero_id = @HeroID;
+    END TRY
+    BEGIN CATCH
+        PRINT ERROR_MESSAGE();
+    END CATCH;
+END;
+
+----------------------------------------------------------
+
+-- Stored Procedure: Returns all products in a category
+CREATE PROCEDURE GetProductsByCategory
+    @CategoryName NVARCHAR(50)
+AS
+BEGIN
+    SELECT * FROM Products WHERE Category = @CategoryName;
+END;
+GO
+
+----------------------------------------------------------
+
+-- Stored Procedure: Inserts a new product into the Products table
+CREATE PROCEDURE InsertProduct
+    @ProductName NVARCHAR(100),
+    @Category NVARCHAR(50),
+    @Price DECIMAL(10, 2)
+AS
+BEGIN
+    INSERT INTO Products (ProductName, Category, Price)
+    VALUES (@ProductName, @Category, @Price);
+END;
+GO
+
+----------------------------------------------------------
+
+-- Function: Counts skincare products for a given skin type
+CREATE FUNCTION CountSkincareProducts (@SkinType NVARCHAR(50))
+RETURNS INT
+AS
+BEGIN
+    RETURN (SELECT COUNT(*) FROM SkincareProducts WHERE SkinType = @SkinType);
+END;
+GO
+
+----------------------------------------------------------
+
+-- Trigger: Automatically sets 'shade' as 'Unknown' if NULL
+CREATE TRIGGER SetDefaultShade
+ON Products
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    UPDATE Products
+    SET Shade = 'Unknown'
+    WHERE Shade IS NULL;
+END;
+GO
+
+----------------------------------------------------------
+
+-- Cursor: Displays all skin products in desired format
+DECLARE SkinProductsCursor CURSOR FOR
+SELECT SKPID + '_' + ProductName + '_' + SkinType AS ProductDetails
+FROM SkincareProducts;
+
+OPEN SkinProductsCursor;
+FETCH NEXT FROM SkinProductsCursor INTO @ProductDetails;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    PRINT @ProductDetails;
+    FETCH NEXT FROM SkinProductsCursor INTO @ProductDetails;
+END;
+
+CLOSE SkinProductsCursor;
+DEALLOCATE SkinProductsCursor;
+GO
+
+----------------------------------------------------------
+
+-- Handle foreign key violation for Makeup table
+CREATE PROCEDURE InsertIntoMakeup
+    @MakeupName NVARCHAR(100),
+    @CategoryID INT
+AS
+BEGIN
+    BEGIN TRY
+        INSERT INTO Makeup (MakeupName, CategoryID)
+        VALUES (@MakeupName, @CategoryID);
+    END TRY
+    BEGIN CATCH
+        IF ERROR_NUMBER() = 547 -- Foreign key violation
+        BEGIN
+            PRINT 'Error: Invalid CategoryID. Please check and try again.';
+        END;
+    END CATCH;
+END;
+GO
+
+----------------------------------------------------------
+
+-- Stored Procedure: Insert a new player
+CREATE PROCEDURE InsertPlayer
+    @PlayerName NVARCHAR(100),
+    @TeamID INT,
+    @JerseyNumber INT
+AS
+BEGIN
+    INSERT INTO Players (PlayerName, TeamID, JerseyNumber)
+    VALUES (@PlayerName, @TeamID, @JerseyNumber);
+END;
+GO
+
+----------------------------------------------------------
+
+-- Stored Procedure: Update team wins/losses after a match
+CREATE PROCEDURE UpdateTeamResults
+    @TeamID INT,
+    @Win INT,
+    @Loss INT
+AS
+BEGIN
+    UPDATE Teams
+    SET Wins = Wins + @Win,
+        Losses = Losses + @Loss
+    WHERE TeamID = @TeamID;
+END;
+GO
+
+----------------------------------------------------------
+
+-- Function: Get team's win percentage
+CREATE FUNCTION GetWinPercentage (@TeamID INT)
+RETURNS FLOAT
+AS
+BEGIN
+    DECLARE @Wins INT, @TotalMatches INT;
+    SELECT @Wins = Wins, @TotalMatches = (Wins + Losses) FROM Teams WHERE TeamID = @TeamID;
+    IF @TotalMatches = 0 RETURN 0;
+    RETURN (CAST(@Wins AS FLOAT) / @TotalMatches) * 100;
+END;
+GO
+
+----------------------------------------------------------
+
+-- Trigger: Prevent duplicate jersey numbers in the same team
+CREATE TRIGGER PreventDuplicateJersey
+ON Players
+INSTEAD OF INSERT
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM Players P
+        JOIN Inserted I ON P.TeamID = I.TeamID AND P.JerseyNumber = I.JerseyNumber
+    )
+    BEGIN
+        PRINT 'Error: Duplicate jersey number in the same team.';
+    END
+    ELSE
+    BEGIN
+        INSERT INTO Players (PlayerName, TeamID, JerseyNumber)
+        SELECT PlayerName, TeamID, JerseyNumber FROM Inserted;
+    END
+END;
+GO
+
+----------------------------------------------------------
+
+-- Cursor: List all players along with their team names
+DECLARE PlayerCursor CURSOR FOR
+SELECT P.PlayerName + ' - ' + T.TeamName AS PlayerTeam
+FROM Players P
+JOIN Teams T ON P.TeamID = T.TeamID;
+
+OPEN PlayerCursor;
+FETCH NEXT FROM PlayerCursor INTO @PlayerTeam;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    PRINT @PlayerTeam;
+    FETCH NEXT FROM PlayerCursor INTO @PlayerTeam;
+END;
+
+CLOSE PlayerCursor;
+DEALLOCATE PlayerCursor;
+GO
+
+----------------------------------------------------------
+
+-- Procedure: Update stadium capacity with error handling
+CREATE PROCEDURE UpdateStadiumCapacity
+    @StadiumID INT,
+    @NewCapacity INT
+AS
+BEGIN
+    IF @NewCapacity < 0 OR @NewCapacity > 150000
+    BEGIN
+        PRINT 'Error: Capacity must be between 0 and 150,000.';
+    END
+    ELSE
+    BEGIN
+        UPDATE Stadiums
+        SET Capacity = @NewCapacity
+        WHERE StadiumID = @StadiumID;
+    END
+END;
+GO
+
+----------------------------------------------------------
+
+-- Procedure: Retrieve all artworks by a specific artist
+CREATE PROCEDURE GetArtworksByArtist
+    @ArtistName NVARCHAR(100)
+AS
+BEGIN
+    SELECT * FROM Artworks
+    WHERE ArtistName = @ArtistName;
+END;
+GO
+
+----------------------------------------------------------
+
+-- Procedure: Update exhibition's location by Exhibition_ID
+CREATE PROCEDURE UpdateExhibitionLocation
+    @ExhibitionID INT,
+    @NewLocation NVARCHAR(100)
+AS
+BEGIN
+    UPDATE Exhibitions
+    SET Location = @NewLocation
+    WHERE ExhibitionID = @ExhibitionID;
+END;
+GO
+
+----------------------------------------------------------
+
+-- Function: Get total number of artworks in a specific exhibition
+CREATE FUNCTION GetArtworkCountInExhibition (@ExhibitionID INT)
+RETURNS INT
+AS
+BEGIN
+    RETURN (SELECT COUNT(*) FROM Artworks WHERE ExhibitionID = @ExhibitionID);
+END;
+GO
+
+----------------------------------------------------------
+
+-- Trigger: Set the Style as 'Contemporary' if NULL when adding a new artist
+CREATE TRIGGER SetDefaultStyle
+ON Artists
+AFTER INSERT
+AS
+BEGIN
+    UPDATE Artists
+    SET Style = 'Contemporary'
+    WHERE Style IS NULL AND ArtistID IN (SELECT ArtistID FROM Inserted);
+END;
+GO
+
+----------------------------------------------------------
+
+-- Cursor: Display all exhibitions in the desired format
+DECLARE ExhibitionCursor CURSOR FOR
+SELECT CAST(ExhibitionID AS NVARCHAR) + '_' + ExhibitionName + '_' + Location AS ExhibitionDetails
+FROM Exhibitions;
+
+OPEN ExhibitionCursor;
+
+DECLARE @ExhibitionDetails NVARCHAR(255);
+FETCH NEXT FROM ExhibitionCursor INTO @ExhibitionDetails;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    PRINT @ExhibitionDetails;
+    FETCH NEXT FROM ExhibitionCursor INTO @ExhibitionDetails;
+END;
+
+CLOSE ExhibitionCursor;
+DEALLOCATE ExhibitionCursor;
+GO
+
+----------------------------------------------------------
+
+-- Procedure: Handle foreign key violation when inserting into Artworks
+CREATE PROCEDURE InsertArtwork
+    @ArtworkName NVARCHAR(100),
+    @ArtistID INT,
+    @ExhibitionID INT
+AS
+BEGIN
+    BEGIN TRY
+        INSERT INTO Artworks (ArtworkName, ArtistID, ExhibitionID)
+        VALUES (@ArtworkName, @ArtistID, @ExhibitionID);
+    END TRY
+    BEGIN CATCH
+        IF ERROR_NUMBER() = 547 -- Foreign key violation
+        BEGIN
+            PRINT 'Error: Invalid ArtistID or ExhibitionID. Please verify the foreign key values.';
+        END;
+    END CATCH;
+END;
+GO
+
