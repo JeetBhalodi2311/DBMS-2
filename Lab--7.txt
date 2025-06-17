@@ -1,0 +1,145 @@
+1)
+DECLARE @a INT = 10, @b INT = 0, @result INT;
+
+BEGIN TRY
+    SET @result = @a / @b;
+    PRINT 'Result: ' + CAST(@result AS VARCHAR);
+END TRY
+BEGIN CATCH
+    PRINT 'Error occurs that is - Divide by zero error.';
+END CATCH;
+
+
+2)
+DECLARE @str VARCHAR(50) = 'abc';
+DECLARE @num INT;
+
+BEGIN TRY
+    SET @num = CAST(@str AS INT);
+    PRINT 'Converted Value: ' + CAST(@num AS VARCHAR);
+END TRY
+BEGIN CATCH
+    PRINT 'Error: Cannot convert string to integer.';
+END CATCH;
+
+
+3)
+CREATE PROCEDURE Sum_Two_Numbers
+    @num1 VARCHAR(50),
+    @num2 VARCHAR(50)
+AS
+BEGIN
+    DECLARE @int1 INT, @int2 INT;
+    
+    BEGIN TRY
+        SET @int1 = CAST(@num1 AS INT);
+        SET @int2 = CAST(@num2 AS INT);
+        PRINT 'Sum: ' + CAST(@int1 + @int2 AS VARCHAR);
+    END TRY
+    BEGIN CATCH
+        PRINT 'Error: Invalid input. Please enter integer values.';
+    END CATCH;
+END;
+
+
+4)
+BEGIN TRY
+    INSERT INTO Customers (Customer_id, Customer_Name, Email)
+    VALUES (1, 'John Doe', 'john@example.com');
+END TRY
+BEGIN CATCH
+    PRINT 'Error: Primary Key Violation';
+    PRINT 'Error Message: ' + ERROR_MESSAGE();
+    PRINT 'Error Number: ' + CAST(ERROR_NUMBER() AS VARCHAR);
+    PRINT 'Error Severity: ' + CAST(ERROR_SEVERITY() AS VARCHAR);
+    PRINT 'Error State: ' + CAST(ERROR_STATE() AS VARCHAR);
+END CATCH;
+
+
+5)
+CREATE PROCEDURE Check_Customer
+    @Customer_id INT
+AS
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM Customers WHERE Customer_id = @Customer_id)
+    BEGIN
+        THROW 50001, 'Error: No Customer_id is available in database', 1;
+    END
+    ELSE
+    BEGIN
+        PRINT 'Customer exists';
+    END
+END;
+
+
+-----------------------------------------
+6)
+BEGIN TRY
+    INSERT INTO Orders (Order_id, Customer_id, Order_date)
+    VALUES (1, 999, GETDATE());  -- Assuming 999 is a non-existent Customer_id
+END TRY
+BEGIN CATCH
+    PRINT 'Error: Foreign Key Violation. Customer_id does not exist.';
+    PRINT 'Error Message: ' + ERROR_MESSAGE();
+END CATCH;
+
+
+7)
+CREATE PROCEDURE Validate_Customer
+    @Customer_Name VARCHAR(250),
+    @Email VARCHAR(50)
+AS
+BEGIN
+    IF @Customer_Name IS NULL OR @Email IS NULL
+    BEGIN
+        THROW 50002, 'Error: Invalid data provided', 1;
+    END
+    ELSE
+    BEGIN
+        PRINT 'Data is valid';
+    END
+END;
+
+
+8)
+CREATE PROCEDURE Update_Customer_Email
+    @Customer_id INT,
+    @NewEmail VARCHAR(50)
+AS
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM Customers WHERE Customer_id = @Customer_id)
+    BEGIN
+        THROW 50003, 'Error: Customer ID not found', 1;
+    END
+    
+    BEGIN TRY
+        UPDATE Customers
+        SET Email = @NewEmail
+        WHERE Customer_id = @Customer_id;
+        PRINT 'Email updated successfully';
+    END TRY
+    BEGIN CATCH
+        PRINT 'Error: Failed to update email';
+    END CATCH;
+END;
+
+
+-------------
+9)
+CREATE PROCEDURE Handle_Duplicate_Customer
+    @Customer_id INT,
+    @Customer_Name VARCHAR(250),
+    @Email VARCHAR(50)
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM Customers WHERE Customer_id = @Customer_id)
+    BEGIN
+        PRINT 'The Customer_id is already taken. Try another one.';
+    END
+    ELSE
+    BEGIN
+        INSERT INTO Customers (Customer_id, Customer_Name, Email)
+        VALUES (@Customer_id, @Customer_Name, @Email);
+        PRINT 'Customer added successfully';
+    END
+END;
